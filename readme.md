@@ -16,7 +16,7 @@ We've already created an `index.js` file as your entry point. Create as many add
 
 ## Testing
 
-We've created a failing `npm test` command for you. You can add additional tests if you'd like and even bring in a tool other than [`tape`](https://github.com/substack/tape) as long as these initial tests remain and `npm test` sets correct exit codes.
+We've created a failing `npm test` command for you. You can add additional tests if you'd like and even bring in a tool other than [`tape`](https://github.com/substack/tape) as long as these initial tests remain unchanged and `npm test` sets correct exit codes.
 
 Passing tests don't guarantee that your solution is perfect but a failing test definitely indicates a problem.
 
