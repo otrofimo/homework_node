@@ -19,7 +19,7 @@ const PACKAGE_DIR = path.resolve(__dirname, 'packages');
 // to replicate CouchDB (https://skimdb.npmjs.com/registry/_all_docs)
 // However, the memory requirements are ~980mb to download the graph so seems excessive
 
-function downloadPackages (count=process.env.COUNT, callback) {
+function downloadPackages (count=process.env.COUNT, callback= ()=> {console.log("DONE!")} ) {
   clearDirectory()
     .then(() => fetchDependedPackages(count))
     .then((responses) => parsePackages(responses, count))
@@ -68,12 +68,19 @@ function installAllPackages(packages) {
           console.log(path.resolve(PACKAGE_DIR, packageName));
           return extractTarToDir(tarURI, path.resolve(PACKAGE_DIR, packageName));
         })
+        .catch(() => { logError("Can't find: " + packageName)})
     })
   )
 }
 
 function fetchPackage(name) {
-  var registryURI = 'https://registry.npmjs.org/' + name;
+  var registryURI = '';
+  if (isScopedPackage(name)) {
+    registryURI = 'https://registry.npmjs.org/' + "@" + encodeURIComponent(name.slice(1));
+  } else {
+    registryURI = 'https://registry.npmjs.org/' + name;
+  }
+
   return requestPromise(registryURI)
     .then((response) => {
       var response = JSON.parse(response);
@@ -82,10 +89,14 @@ function fetchPackage(name) {
     });
 }
 
-function extractTarToDir(tarURI, location, callback) {
+function isScopedPackage(string) {
+  return string.match(/@/);
+}
+
+function extractTarToDir(tarURI, location) {
   console.log("Extracting ", tarURI, " to : ", location)
   return new Promise((resolve, reject) => {
-    fs.mkdir(location, (err) => {
+    fs.mkdirs(location, (err) => {
       if (err) {
         console.error("ERROR mkdir");
         reject(err);
